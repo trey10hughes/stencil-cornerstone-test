@@ -66,13 +66,10 @@
            {{#if settings.data_tag_enabled}} data-event-type="product-click" {{/if}}
         >
             <div class="card-img-container">
-                <!-- {{> components/common/responsive-img
-                    image=image
-                    class="card-image"
-                    fallback_size=theme_settings.productgallery_size
-                    lazyload=theme_settings.lazyload_mode
-                    default_image=theme_settings.default_image_product
-                }} -->
+                <!-- 
+                    got rid of old reference to responsive-img component
+                    data-src and data-hoverimage are used by jquery script to change image on hover
+                -->
                 <img
                     class="card-image"
                     src="{{getImage image 'productgallery_size' (cdn theme_settings.default_image_product)}}"
@@ -81,7 +78,7 @@
                     layout="responsive"
                     alt="{{image.alt}}"
                     data-src="{{getImage image}}"
-                    data-hoverimage='{{getImage images.1.data}}'
+                    data-hoverimage="{{#replace '{:size}' images.1.data}}500x659{{/replace}}{{getImage images.1.data 'productgallery_size' (cdn theme_settings.default_image_product)}}"
                 >
             </div>
         </a>
