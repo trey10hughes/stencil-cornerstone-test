@@ -1,3 +1,8 @@
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+
 <article
     class="card
     {{#if alternate}} card--alternate{{/if}}"
@@ -61,13 +66,23 @@
            {{#if settings.data_tag_enabled}} data-event-type="product-click" {{/if}}
         >
             <div class="card-img-container">
-                {{> components/common/responsive-img
+                <!-- {{> components/common/responsive-img
                     image=image
                     class="card-image"
                     fallback_size=theme_settings.productgallery_size
                     lazyload=theme_settings.lazyload_mode
                     default_image=theme_settings.default_image_product
-                }}
+                }} -->
+                <img
+                    class="card-image"
+                    src="{{getImage image 'productgallery_size' (cdn theme_settings.default_image_product)}}"
+                    width="{{first (split theme_settings.productgallery_size 'x')}}"
+                    height="{{last (split theme_settings.productgallery_size 'x')}}"
+                    layout="responsive"
+                    alt="{{image.alt}}"
+                    data-src="{{getImage image}}"
+                    data-hoverimage='{{getImage images.1.data}}'
+                >
             </div>
         </a>
 
@@ -137,3 +152,23 @@
         {{> components/products/bulk-discount-rates}}
     </div>
 </article>
+
+<script>
+    $('.card-figure').hover(
+    	function() {
+        console.log("hover");
+          var image = $(this).find('.card-image');
+          console.log(image)
+          var newImg = image.attr('data-hoverimage');
+          console.log(newImg)
+          var currentImg = image.attr('src');
+    		if (newImg && newImg != '') image.attr('src', newImg);
+       }, function() {
+           console.log("leaving hover")
+          var image = $(this).find('.card-image');
+          var newImg = image.attr('data-src');
+          var currentImg = image.attr('src');
+    		if (newImg && newImg != '') image.attr('src', newImg);
+    	}
+    );
+</script>
