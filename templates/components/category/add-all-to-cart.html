@@ -1,0 +1,36 @@
+{{inject "products" category.products}}
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+</head>
+<form class="add-all-to-cart">
+	<input id="add-all-to-cart"class="button button--primary form-prefixPostfix-button--postfix" value="Add All to Cart" type="button">
+
+</form>
+
+
+<script>
+	
+	
+
+	// when #addToCart is clicked...
+	$("input#add-all-to-cart").click(function() {
+		
+		//using JS Template Context Injection to grab product list
+		var jsContext = JSON.parse({{jsContext}});
+		console.log(jsContext.products);
+		var products = jsContext.products;
+		
+		for (var i=0; i<products.length; i++) {
+			// add product id from product list
+			console.log(products[i].id)
+			var addCartUrl = "/cart.php?action=add&product_id="
+			var url = "/cart.php?action=add&product_id=" + products[i].id;
+			console.log(url);
+			$.get(url);
+		};
+		// go to cart
+		window.location = "/cart.php";
+	});
+</script>
+
