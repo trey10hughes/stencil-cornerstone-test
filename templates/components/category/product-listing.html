@@ -1,9 +1,11 @@
 {{inject 'noCompareMessage' (lang 'compare.no_compare')}}
-
 {{#if category.products}}
     <!-- add all to cart button -->
-    {{> components/category/add-all-to-cart}}
-    {{> components/category/remove-all-from-cart}}
+    <div id="button1">
+        {{> components/category/add-all-to-cart}}
+    </div>
+    <div id="button2">
+    </div>
     {{> components/products/filter sort=pagination.category.sort}}
     
     <form action="{{urls.compare}}" method='POST' {{#if settings.data_tag_enabled}} data-list-name="Category: {{category.name}}" {{/if}} data-product-compare>
@@ -36,3 +38,81 @@
         </p>
     {{/if}}
 {{/if}}
+
+<script id="remove-all-from-cart" type="x-handlebars-template">
+	<form class="remove-all-from-cart">
+		<input id="remove-all-from-cart"class="button button--primary form-prefixPostfix-button--postfix" value="Remove All Items from Cart" type="button">
+	</form>
+</script>
+
+<script>
+    $(document).ready(function(){
+        console.log('Log Cart');	
+
+        var cart;
+
+            fetch('/api/storefront/cart', {
+                credentials: 'include'   
+            }).then(function(response) {
+                return response.json();          
+            }).then(function(myJson) {
+                        console.log(myJson);
+                        cart = myJson
+
+                        var cartLength = cart.length;
+
+                        if (cartLength > 0) {
+                            console.log("item in cart")
+                            var buttonScript = $("#remove-all-from-cart").html();
+                            var template = Handlebars.compile(buttonScript);
+
+                            $("#button2").append(template)
+
+                            // when #remove all is clicked...
+                            $("input#remove-all-from-cart").click(function() {
+                            
+                                //using JS Template Context Injection to grab cartId
+                                var jsContext = JSON.parse({{jsContext}});
+                                console.log(jsContext.cartId);
+                                var cartId = jsContext.cartId;
+                                
+
+                                //get item ids and use them to delete the item from the cart
+                                for (var key in cart[0].lineItems) {
+                                    console.log(`${key}: ${cart[0].lineItems[key]}`);
+                                    //if line items object has items in it
+                                    if (cart[0].lineItems[key].length > 0){
+                                        //loop through the array of items and use the id to delete it from the customer's cart
+                                        for (var i=0; i<cart[0].lineItems[key].length; i++){
+                                            var itemId = cart[0].lineItems[key][i].id;
+                                            console.log("item id: " + itemId)
+
+                                            url = "https://obundle-project-store.mybigcommerce.com/api/storefront/carts/" + cartId + "/items/" + itemId;
+
+                                            //delete item from customer cart
+                                            fetch(url,{
+                                                method:'DELETE'    
+                                            });   
+                                        }
+                                    }
+                                }
+                                window.location = "/cart.php";
+                            
+                            });
+                        }
+
+                // var numCustomItems = cart[0].lineItems.customItems.length;
+                // var numDigitalItems = cart[0].lineItems.digitalItems.length;
+                // var numGiftCertificates = cart[0].lineItems.giftCertificates.length;
+                // var numPhysicalItems = cart[0].lineItems.physicalItems.length;
+                // var numCustomItems = cart[0].lineItems.customItems.length;
+
+            });
+        
+            
+            
+    })
+    
+        
+    
+</script>

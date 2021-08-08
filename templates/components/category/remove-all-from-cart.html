@@ -9,25 +9,23 @@
 
 
 <script>
-	
-	
 
+	var jsContext = JSON.parse({{jsContext}});
+	console.log(jsContext);
+	
 	// when #addToCart is clicked...
 	$("input#remove-all-from-cart").click(function() {
 		
-		//using JS Template Context Injection to grab product list
+		//using JS Template Context Injection to grab cartId
 		var jsContext = JSON.parse({{jsContext}});
-		console.log(jsContext.products);
-		var products = jsContext.products;
-		
-		for (var i=0; i<products.length; i++) {
-			// add product id from product list
-			console.log(products[i].id)
-			var addCartUrl = "/cart.php?action=add&product_id="
-			var url = "/cart.php?action=add&product_id=" + products[i].id;
-			console.log(url);
-			$.get(url);
-		};
+		console.log(jsContext.cartId);
+		var cartId = jsContext.cartId;
+		url = "https://obundle-project-store.mybigcommerce.com/api/storefront/carts/" + cartId;
+
+		//delete cart for customer
+		fetch(url,{
+			method:'DELETE'
+		});
 		// go to cart
 		window.location = "/cart.php";
 	});
