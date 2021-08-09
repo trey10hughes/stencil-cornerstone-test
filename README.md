@@ -1,6 +1,6 @@
 # Cornerstone Theme Test
 
-URL: https://obundle-project-store.mybigcommerce.com/?ctk=688970b3-a98e-4381-a777-51bf14d67873
+URL: https://obundle-project-store.mybigcommerce.com/
 Preview Code: ne5f5lxepz
 
 I was able to complete all of the tasks assigned for this project by utilizing a combination of the bigcommerce community forums and the developer documentation mentioned in the assignment. I will describe how I solved each problem below.
