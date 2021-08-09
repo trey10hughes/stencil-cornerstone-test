@@ -1,146 +1,28 @@
-# Cornerstone
-![tests](https://github.com/bigcommerce/cornerstone/workflows/Theme%20Bundling%20Test/badge.svg?branch=master)
+# Cornerstone Theme Test
 
-Stencil's Cornerstone theme is the building block for BigCommerce theme developers to get started quickly developing premium quality themes on the BigCommerce platform.
+URL: https://obundle-project-store.mybigcommerce.com/?ctk=688970b3-a98e-4381-a777-51bf14d67873
+Preview Code: ne5f5lxepz
 
-### Stencil Utils
-[Stencil-utils](https://github.com/bigcommerce/stencil-utils) is our supporting library for our events and remote interactions.
+I was able to complete all of the tasks assigned for this project by utilizing a combination of the bigcommerce community forums and the developer documentation mentioned in the assignment. I will describe how I solved each problem below.
 
-## JS API
-When writing theme JavaScript (JS) there is an API in place for running JS on a per page basis. To properly write JS for your theme, the following page types are available to you:
+# Showing second product image on hover
 
-* "pages/account/addresses"
-* "pages/account/add-address"
-* "pages/account/add-return"
-* "pages/account/add-wishlist"
-* "pages/account/recent-items"
-* "pages/account/download-item"
-* "pages/account/edit"
-* "pages/account/return-saved"
-* "pages/account/returns"
-* "pages/account/payment-methods"
-* "pages/auth/login"
-* "pages/auth/account-created"
-* "pages/auth/create-account"
-* "pages/auth/new-password"
-* "pages/blog"
-* "pages/blog-post"
-* "pages/brand"
-* "pages/brands"
-* "pages/cart"
-* "pages/category"
-* "pages/compare"
-* "pages/errors"
-* "pages/gift-certificate/purchase"
-* "pages/gift-certificate/balance"
-* "pages/gift-certificate/redeem"
-* "global"
-* "pages/home"
-* "pages/order-complete"
-* "pages/page"
-* "pages/product"
-* "pages/search"
-* "pages/sitemap"
-* "pages/subscribed"
-* "pages/account/wishlist-details"
-* "pages/account/wishlists"
+For this problem, I decided after looking through some forum posts that I would use getImage to get the image source and place it in the src tag. After this, I created a data-src tag with the first image as it's value, as well as a tag called data-hoverimage that would store the value of the second product image. Then, using a jquery hover event, I swapped the values of the src tag and the data-hoverimage tag on the <img> element in question, allowing the image to change when hovering over the product. After leaving hover, the data-src tag and the new src tag values were swapped in order to switch the image back.
 
-These page types will correspond to the pages within your theme. Each one of these page types map to an ES6 module that extends the base `PageManager` abstract class.
+# Add all to Cart
 
-```javascript
-    export default class Auth extends PageManager {
-        constructor() {
-            // Set up code goes here; attach to internals and use internals as you would 'this'
-        }
-    }
-```
+For this, I created a new component in the templates/components/category folder called add-all-to-cart.html. In this file, I created a button using the same styling as the "subscribe button seen in the footer. Then I created a script for a jquery on click event. When the button is clicked, the products on the category page are taken from jsContext and placed in a variable called products. That products variable is iterated over, and the product id of each product is used to make a request to the storefront api to add the product to the customer's cart, until all items in that category have been added to cart. Afterwards, the customer is redirected to their cart.
 
-### JS Template Context Injection
-Occasionally you may need to use dynamic data from the template context within your client-side theme application code.
+# Remove all from Cart
 
-Two helpers are provided to help achieve this.
+For this problem, I found that I had to write this within the product-listing.html template because I needed to add the button to the DOM dynamically if the user had an item in their cart. My solution was to use jquery to append a handlebars script containing the button to a div that was right next to the Add All to Cart button. I originally had wanted to append a raw html file and keep this button in it's own template, however when I used jquery's $.get() selector to request the file, it kept adding "/special-items/" to the front of the url for the file. I was unable to figure out why this was happening, so I opted to write the button within the product-listing.html template instead.
 
-The inject helper allows you to compose a JSON object with a subset of the template context to be sent to the browser.
+First I used the storefront api to make a call to /api/storefront/cart in order to get the data for the user's cart. Once I had the data, I checked the length of the cart array, which I found to be an empty array if the cart had no items. If cart.length was greater than 0, that is when I would compile the handlebars script to a variable and apprend it to the DOM to be rendered. On click, the button would use jsContext to grab the user's cart id so it could be used to delete items from the cart. Then, I iterated over the lineItems object that was in the cart data. This object had 5 different arrays of item categories as its values, so I iterated over this object checking the length of each of these arrays. If the length was > 0, I would iterate over that specific array to pull out any item ids, and use them in combination with the cart id from earlier to delete that item from the customer's cart. Afterwards, I would redirect the user to the cart page. Originally I had just been deleting the customer's cart as a whole, but was encountering some issues with changing cart ids, so I opted to go this route instead.
 
-```
-{{inject "stringBasedKey" contextValue}}
-```
+# Bonus: Displaying user data in NavBar
 
-To retrieve the parsable JSON object, just call `{{jsContext}}` after all of the `{{@inject}}` calls.
+To solve this, I simply added a few more list items at the beginning of templates/components/common/navigation.html just like the ones for the Search, Account, Sign Out, and Cart buttons, and pulled the data from the Customer object for the customer's name, email, and phone number to be their values. I changed these from <button> elements to <p> elements, and created some new CSS rules that kept them looking the same as the other list items, but without the hover effect so it was clear that they were not interactive to the user.
 
-For example, to setup the product name in your client-side app, you can do the following if you're in the context of a product:
+# Issues
 
-```html
-{{inject "myProductName" product.title}}
-
-<script>
-// Note the lack of quotes around the jsContext handlebars helper, it becomes a string automatically.
-var jsContext = JSON.parse({{jsContext}}); // jsContext would output "{\"myProductName\": \"Sample Product\"}" which can feed directly into your JavaScript
-
-console.log(jsContext.myProductName); // Will output: Sample Product
-</script>
-```
-
-You can compose your JSON object across multiple pages to create a different set of client-side data depending on the currently loaded template context.
-
-The stencil theme makes the jsContext available on both the active page scoped and global PageManager objects as `this.context`.
-
-## Polyfilling via Feature Detection
-Cornerstone implements [this strategy](https://philipwalton.com/articles/loading-polyfills-only-when-needed/) for polyfilling.
-
-In `templates/components/common/polyfill-script.html` there is a simple feature detection script which can be extended to detect any recent JS features you intend to use in your theme code.
-
-If any one of the conditions is not met, an additional blocking JS bundle configured in `assets/js/polyfills.js` will be loaded to polyfill modern JS features before the main bundle executes. 
-
-This intentionally prioritizes the experience of the 90%+ of shoppers who are on modern browsers in terms of performance, while maintaining compatibility (at the expense of additional JS download+parse for the polyfills) for users on legacy browsers.
-
-## Static assets
-Some static assets in the Stencil theme are handled with Grunt if required. This
-means you have some dependencies on grunt and npm. To get started:
-
-First make sure you have Grunt installed globally on your machine:
-
-```
-npm install -g grunt-cli
-```
-
-and run:
-
-```
-npm install
-```
-
-Note: package-lock.json file was generated by Node version 10 and npm version 6.11.3. The app supports Node 10 as well as multiple versions of npm, but we should always use those versions when updating package-lock.json, unless it is decided to upgrade those, and in this case the readme should be updated as well. If using a different version for node OR npm, please delete the package-lock.json file prior to installing node packages and also prior to pushing to github.
-
-If updating or adding a dependency, please double check that you are working on Node version 10 and npm version 6.11.3 and run ```npm update <package_name>```  or ```npm install <package_name>``` (avoid running npm install for updating a package). After updating the package, please make sure that the changes in the package-lock.json reflect only the updated/new package prior to pushing the changes to github.
-
-
-### Icons
-Icons are delivered via a single SVG sprite, which is embedded on the page in
-`templates/layout/base.html`. It is generated via a grunt task `grunt svgstore`.
-
-The task takes individual SVG files for each icon in `assets/icons` and bundles
-them together, to be inlined on the top of the theme, via an ajax call managed
-by svg-injector. Each icon can then be called in a similar way to an inline image via:
-
-```
-<svg><use xlink:href="#icon-svgFileName" /></svg>
-```
-
-The ID of the SVG icon you are calling is based on the filename of the icon you want,
-with `icon-` prepended. e.g. `xlink:href="#icon-facebook"`.
-
-Simply add your new icon SVG file to the icons folder, and run `grunt svgstore`,
-or just `grunt`.
-
-#### License
-
-(The MIT License)
-Copyright (C) 2015-present BigCommerce Inc.
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Currently, adding all to cart and removing all from cart behaves a bit strangely. Sometimes it takes a while for the cart to actually update, and the timing seems kind of inconsistent. The redirect to the cart page doesn't seem to line up with when the data actually is changed on the backend, so sometimes you will be redirected and it will look as if the button didn't work, however refreshing the page usually will cause the changes in data to be reflected if this happens. I was unable to figure out why this was happening but decided to press on with the rest of the work, as the core functionality was working even if it might have been a bit buggy.
