@@ -71,6 +71,25 @@
     }
 }
 
+.navUser-data {
+    color: stencilColor("navUser-color");
+    font-weight: fontWeight("bold");
+    padding: spacing("base") spacing("half");
+    text-decoration: none;
+    text-transform: uppercase;
+
+    .icon {
+        @include square(8px);
+        margin: -1px 0 0 spacing("eighth");
+    }
+
+    svg {
+        fill: stencilColor("navUser-color");
+        stroke: stencilColor("navUser-color");
+        transition: all 0.15s ease;
+    }
+}
+
 .navUser-action {
     color: stencilColor("navUser-color");
     font-weight: fontWeight("bold");

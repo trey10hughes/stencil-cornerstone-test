@@ -2,6 +2,23 @@
     {{> components/common/currency-selector}}
 
     <ul class="navUser-section navUser-section--alt">
+        {{#if customer}}
+            <li class="navUser-item">
+                <p class="navUser-data">
+                    {{customer.name}}
+                </p>
+            </li>
+            <li class="navUser-item">
+                <p class="navUser-data">
+                    {{customer.email}}
+                </p>
+            </li>
+            <li class="navUser-item">
+                <p class="navUser-data">
+                    {{customer.phone}}
+                </p>
+            </li>
+        {{/if}}
         {{#if customer.store_credit.value '>' 0}}
             <li class="navUser-item">
                 <a class="navUser-action navUser-action--storeCredit"
